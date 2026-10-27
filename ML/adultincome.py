@@ -1,39 +1,42 @@
+
 import numpy as np
 import pandas as pd
-from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.preprocessing import StandardScaler,OneHotEncoder
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
-from sklearn.datasets import fetch_openml
 
-data=fetch_openml("adult",version=2,as_frame=True)
+df = pd.read_csv(r'C:\Users\ASUS\Downloads\adult.csv')
+df = df.dropna()
 
-df=data.frame.dropna()
+X = df.drop("class", axis=1)
+y = (df["class"]== ">50K").astype(int)
 
-X=df.drop("class",axis=1)
-y=(df["class"]==">50K").astype(int)
+cat = X.select_dtypes(include=["object", "category"]).columns
+num = X.select_dtypes(exclude=["object", "category"]).columns
 
-cat=X.select_dtypes(include="object").columns
-num=X.select_dtypes(exclude="object").columns
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 
-X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
+pre = ColumnTransformer([
+    ("cat", OneHotEncoder(handle_unknown="ignore"), cat),
+    ("num", StandardScaler(), num)
+])
 
-pre=ColumnTransformer([("cat",OneHotEncoder(handle_unknown="ignore"),cat),
-                        ("num",StandardScaler(),num)])
+X_train = pre.fit_transform(X_train)
+X_test = pre.transform(X_test)
 
-X_train=pre.fit_transform(X_train)
-X_test=pre.transform(X_test)
-
-models={
-    "Logistic Regression":LogisticRegression(max_iter=1000),
-    "Decision Tree":DecisionTreeClassifier(random_state=42)
+models = {
+    "Logistic Regression": LogisticRegression(max_iter=1000),
+    "Decision Tree": DecisionTreeClassifier(random_state=42)
 }
 
-for name,model in models.items():
-    model.fit(X_train,y_train)
-    pred=model.predict(X_test)
+for name, model in models.items():
+    model.fit(X_train, y_train)
+    pred = model.predict(X_test)
 
     print("\n", name)
     print("Accuracy:", accuracy_score(y_test, pred))
