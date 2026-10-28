@@ -44,15 +44,13 @@ for lr in learning_rates:
             results[key] = acc
             print(key, "Accuracy =", round(acc, 4))
 
-best = max(results, key=results.get)
-print("\nBest setting:", best)
-print("Best accuracy:", round(results[best], 4))
+
 
 plt.figure(figsize=(12, 5))
-plt.bar(range(len(results)), results.values())
-plt.xticks(range(len(results)), results.keys(), rotation=90)
+plt.bar(results.keys(), results.values())
 plt.title("Fashion MNIST Hyperparameter Comparison")
 plt.xlabel("Hyperparameter Settings")
 plt.ylabel("Accuracy")
+plt.xticks(rotation=90)
 plt.tight_layout()
 plt.show()
