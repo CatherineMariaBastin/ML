@@ -14,19 +14,19 @@ data = data[~data['InvoiceNo'].astype(str).str.startswith('C')]
 data['Amount'] = data['Quantity'] * data['UnitPrice']
 
 customer = data.groupby('CustomerID').agg(
-    TotalSpend=('Amount', 'sum'),
+    TotalAmount=('Amount', 'sum'),
     TotalQuantity=('Quantity', 'sum'),
-    NumInvoices=('InvoiceNo', 'nunique'),
-    AvgOrderValue=('Amount', 'mean')
+    Frequency=('InvoiceNo', 'nunique'),
+    AvgAmount=('Amount', 'mean')
 ).reset_index()
 
 customer['Segment'] = pd.qcut(
-    customer['TotalSpend'], q=3,
+    customer['TotalAmount'], q=3,
     labels=['Low', 'Medium', 'High'],
     duplicates='drop'
 )
 
-X = customer[['TotalQuantity', 'NumInvoices', 'AvgOrderValue']]
+X = customer[['TotalQuantity', 'Frequency', 'AvgAmount']]
 y = customer['Segment']
 
 xtrain, xtest, ytrain, ytest = train_test_split(
